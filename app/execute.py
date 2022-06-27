@@ -12,16 +12,39 @@ def read(files: List[str]) -> List[dict]:
 
 
 def process(data: List[dict]) -> List[dict]:
-    return data
+    processed = list()
+    headers = set()
+    sort_column = 'D1'
+    sort_index = 0
+
+    for element in data:
+        headers.update(element.keys())
+
+    processed.append(sorted(headers, key=lambda x: (x[0], int(x[1: len(x)])) ))
+    sort_index = processed[0].index(sort_column)
+
+    for index in range(0, len(data)):
+        curr = data[index]
+        row = []
+        
+        for element in processed[0]:
+            cell = curr.get(element) if curr.get(element) is not None else ""
+            row.append(cell)
+        processed.append(row)
+    
+    header = processed.pop(0)
+    processed = sorted(processed, key=lambda x: x[sort_index])
+    processed.insert(0, header)
+    
+    return processed
 
 
-def write(data: List[dict]):
+def write(data):
     with open('file.tsv', 'w', encoding='utf8', newline='') as tsv_file:
         tsv_writer = csv.writer(tsv_file, delimiter='|')
-        tsv_writer.writerow(list(data[0].keys()))
         
         for item in data:
-            tsv_writer.writerow(list(item.values()))  
+            tsv_writer.writerow(list(item))  
 
 
 def execute(args):

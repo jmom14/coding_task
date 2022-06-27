@@ -55,9 +55,15 @@ class TestExecute(TestCase):
 
 
     def test_proccess(self):
-
+        
         processed_data = process(valid_sample_array)
-        assert processed_data == valid_sample_array
+        
+        assert processed_data[0] == ['D1', 'D2', 'D3', 'M1', 'M2', 'M3', 'M4']
+        assert processed_data[1] == ['a', 'a', 'a', 0, 0, 0, 0]
+        assert processed_data[2] == ['b', 'b', 'b', 1, 1, 1, 1]
+        assert processed_data[3] == ['c', 'c', 'c', 2, 2, 2, 2]
+
+
 
 
     def test_write(self):
