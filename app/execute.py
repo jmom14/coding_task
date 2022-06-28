@@ -2,6 +2,12 @@ import csv
 from typing import List
 from .reader_factory import ReaderFactory
 
+def get_row(columns, current):
+    row = []
+    for cell in columns:
+        row_temp = current.get(cell) if current.get(cell) is not None else ""
+        row.append(row_temp)
+    return row
 
 def read(files: List[str]) -> List[dict]:
     read_data = []
@@ -13,28 +19,46 @@ def read(files: List[str]) -> List[dict]:
 
 def process(data: List[dict]) -> List[dict]:
     processed = list()
-    headers = set()
+    header = set()
     sort_column = 'D1'
     sort_index = 0
 
     for element in data:
-        headers.update(element.keys())
+        header.update(element.keys())
 
-    processed.append(sorted(headers, key=lambda x: (x[0], int(x[1: len(x)])) ))
-    sort_index = processed[0].index(sort_column)
+    sorted_header = (sorted(header, key=lambda x: (x[0], int(x[1: len(x)]))))
 
-    for index in range(0, len(data)):
+    sort_index = sorted_header.index(sort_column)
+
+    for index in range(len(data)):
         curr = data[index]
-        row = []
+        row = get_row(sorted_header, curr)
         
-        for element in processed[0]:
-            cell = curr.get(element) if curr.get(element) is not None else ""
-            row.append(cell)
-        processed.append(row)
-    
-    header = processed.pop(0)
-    processed = sorted(processed, key=lambda x: x[sort_index])
-    processed.insert(0, header)
+        if len(processed) == 0:
+            processed.append(row)
+        else:
+            start = 0
+            end = len(processed) - 1
+            pos = 0
+            
+            while start <= end:
+                mid = start + (end -start) // 2
+                if processed[mid][sort_index] == data[index].get(sort_column):
+                    processed.insert(max(0, mid + 1), row)
+                    break
+                    
+                elif processed[mid][sort_index] >  data[index].get(sort_column):
+                    pos = end = mid - 1
+
+                else:
+                    pos = start = mid + 1
+
+                if start > end:
+                    pos = start
+                    processed.insert(max(0, pos), row)
+                    break
+
+    processed.insert(0, sorted_header)
     
     return processed
 
